@@ -9,7 +9,7 @@ ROLE_CHOISES = (
 
 
 class CustomUser(AbstractUser):
-    email = models.EmailField()
+    email = models.EmailField(unique=True)
     role = models.CharField(max_length=150, choices=ROLE_CHOISES)
 
     def __str__(self):

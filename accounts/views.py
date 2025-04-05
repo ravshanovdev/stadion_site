@@ -25,4 +25,16 @@ class RegisterApiView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+class CustomTokenObtainPairSerializerView(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+        token['username'] = user.username
+        return token
+
+
+class CustomTokenObtainPairApiView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializerView
+    
+
 

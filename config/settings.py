@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'accounts',
     'stadions',
+    'payment',
     'rest_framework',
     'rest_framework_simplejwt'
 
