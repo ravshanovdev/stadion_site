@@ -15,3 +15,13 @@ class Stadion(models.Model):
 
     def __str__(self):
         return f"stadion_owner: {self.owner}, stadion_name: {self.name}, price_per_hour: {self.price}"
+
+
+class OrderStadion(models.Model):
+    stadion = models.ForeignKey(Stadion, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    is_paid = models.BooleanField(default=False)
+    stripe_session_id = models.CharField(max_length=150, blank=True, null=True)
+
+    def __str__(self):
+        return f"stadion: {self.stadion}, is_paid: {self.is_paid}"

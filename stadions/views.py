@@ -2,8 +2,8 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from .serializers import StadionSerializer, StadionListSerializer
-from .models import Stadion
+from .serializers import StadionSerializer, StadionListSerializer, OrderStadionSerializer
+from .models import Stadion, OrderStadion
 
 
 # POST
@@ -80,3 +80,13 @@ def delete_stadion(request, pk):
     return Response(status=status.HTTP_204_NO_CONTENT)
 
 
+# ORDER_STADION
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def get_all_order(request):
+    order = OrderStadion.objects.all()
+
+    serializer = OrderStadionSerializer(order, many=True)
+
+    return Response(serializer.data, status=status.HTTP_200_OK)
