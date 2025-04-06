@@ -34,15 +34,18 @@ class CreateStripeCheckoutSession(APIView):
             cancel_url='http://localhost:8000/cancel/',
         )
 
-        # Order yaratish
         order = OrderStadion.objects.create(
             stadion=stadion,
             user=request.user,
-            stripe_session_id=session.id
+            stripe_session_id=session.id,
+            is_paid=True
+
         )
 
-        return Response({'checkout_url': session.url})
+        stadion.is_brone = True
+        stadion.save()
 
+        return Response({'checkout_url': session.url})
 
 # @method_decorator(csrf_exempt, name='dispatch')
 # class StripeWebhookView(APIView):
@@ -68,4 +71,3 @@ class CreateStripeCheckoutSession(APIView):
 #             print("Payment success:", session)
 #
 #         return Response({'status': 'success'})
-
