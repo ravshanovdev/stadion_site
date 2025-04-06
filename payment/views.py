@@ -7,6 +7,7 @@ from django.conf import settings
 from stadions.models import Stadion, OrderStadion
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
+from rest_framework import status
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
@@ -15,37 +16,42 @@ class CreateStripeCheckoutSession(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, stadion_id):
-        stadion = Stadion.objects.get(id=stadion_id)
+        try:
 
-        session = stripe.checkout.Session.create(
-            payment_method_types=['card'],
-            line_items=[{
-                'price_data': {
-                    'currency': 'usd',
-                    'product_data': {
-                        'name': stadion.name,
+            stadion = Stadion.objects.get(id=stadion_id, is_brone=False)
+
+            session = stripe.checkout.Session.create(
+                payment_method_types=['card'],
+                line_items=[{
+                    'price_data': {
+                        'currency': 'usd',
+                        'product_data': {
+                            'name': stadion.name,
+                        },
+                        'unit_amount': int(stadion.price * 100),  # Stripe = cent
                     },
-                    'unit_amount': int(stadion.price * 100),  # Stripe = cent
-                },
-                'quantity': 1,
-            }],
-            mode='payment',
-            success_url='http://localhost:8000/success/',
-            cancel_url='http://localhost:8000/cancel/',
-        )
+                    'quantity': 1,
+                }],
+                mode='payment',
+                success_url='http://localhost:8000/success/',
+                cancel_url='http://localhost:8000/cancel/',
+            )
 
-        order = OrderStadion.objects.create(
-            stadion=stadion,
-            user=request.user,
-            stripe_session_id=session.id,
-            is_paid=True
+            order = OrderStadion.objects.create(
+                stadion=stadion,
+                user=request.user,
+                stripe_session_id=session.id,
+                is_paid=True
 
-        )
+            )
 
-        stadion.is_brone = True
-        stadion.save()
+            stadion.is_brone = True
+            stadion.save()
 
-        return Response({'checkout_url': session.url})
+            return Response({'checkout_url': session.url})
+        except Stadion.DoesNotExist:
+            return Response({"error": "This Stadion Already Reservation"}, status=status.HTTP_403_FORBIDDEN)
+
 
 # @method_decorator(csrf_exempt, name='dispatch')
 # class StripeWebhookView(APIView):
